@@ -21,3 +21,14 @@
 <p align="center">
   <a href="https://rockac.stalker-rp.net"><strong>rock.ac »</strong></a>
 </p>
+
+<hr>
+
+# Rock Anti-Cheat web services
+
+This monorepo contains the web services and documentation for Rock Anti-Cheat.
+
+## Overview
+
+- `api/` Frontend API for client and server plugins.
+- `engine/` Backend API for internal use.
