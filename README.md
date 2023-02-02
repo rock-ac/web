@@ -9,6 +9,12 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/rock-ac/docs">
+    <img src="https://img.shields.io/badge/Docs-9083D2?logoColor=9083D2" />
+  </a>
+</p>
+
+<p align="center">
   Multicomplex SA:MP anti-cheat system.
 </p>
 
