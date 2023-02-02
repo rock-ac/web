@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <em>rock.ac sa:mp anti-cheat system</em>
+  <em>Rock Anti-cheat</em>
 </p>
 
 <p align="center">
