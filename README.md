@@ -26,7 +26,7 @@
 
 # Rock Anti-Cheat web services
 
-This monorepo contains the web services and documentation for Rock Anti-Cheat.
+This monorepo contains the web services for Rock Anti-Cheat.
 
 ## Overview
 
