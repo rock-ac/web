@@ -41,11 +41,15 @@ class CUser():
         self.isCreatedNewCleoFile              = False
         self.isDetectedMemoryPattern           = False
 
+    def iterAutoBan(self):
+        self.query = ("SELECT `username`,`reason` FROM `auto_ban`")
+        with connection.cursor(buffered=True) as self.cursor:
+            self.cursor.execute(self.query)
+            for self.user in self.cursor.fetchall():
+                self.waitCheater(self.user[0], self.user[1])
 
-    def waitCheater(self, user):
-        # патлатый, я маму твою ибал
+    def waitCheater(self, user, reason):
         self.query = (f"SELECT `lastSessionID` FROM `users` WHERE `username` = '{user}'")
-        print(self.query)
         with connection.cursor(buffered=True) as self.cursor:
             self.cursor.execute(self.query)
             if(self.cursor.rowcount == 0):
@@ -54,13 +58,15 @@ class CUser():
                 for self.u in self.cursor.fetchall():
                     self.dd = self.u[0]
 
-                    self.query = (f"UPDATE `users` SET `banned` = '1', `ban_info` = 'ROBOT (AutoBan)', `ban_date` = NOW() WHERE `username` = '{user}'")
-                    print(self.query)
+                    self.query = (f"UPDATE `users` SET `banned` = '1', `ban_info` = 'AutoBan ({reason})', `ban_date` = NOW() WHERE `username` = '{user}'")
                     with connection.cursor() as self.cursor:
                         self.cursor.execute(self.query)
 
-                    with open(f'/var/www/html/api/sessions/{self.dd}/index.php', 'w') as f:
-                        f.write(f"<?php echo '0x0001488'; ?>")    
+                    try:
+                        with open(f'/var/www/html/api/sessions/{self.dd}/index.php', 'w') as f:
+                            f.write(f"<?php echo '0x0001488'; ?>")    
+                    except:
+                        pass
 
     def checkBlacklistModule(self, name, base_address, hash):
         self.query = (f"SELECT `name` FROM `cblacklistmodules` WHERE `hash` = '{hash}'")
@@ -155,10 +161,7 @@ class CUser():
             self.performVerdict(DETECTED_NEW_CLEO_FILE)
 
     def work(self):
-        self.users = ['fickser', 'GoodGame', 'Lezgistan', '9m113']
-        for self.user in self.users:
-            self.waitCheater(self.user)
-
+        self.iterAutoBan()
         self.iterModules()
         self.iterMemory()
         self.iterCleo()
