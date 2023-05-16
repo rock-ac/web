@@ -22,6 +22,8 @@ SQL_DB       = "rockac_dev"
 connection = mysql.connector.connect(user=SQL_USER, password=SQL_PASSWORD, host=SQL_HOST, database=SQL_DB)
 connection.autocommit = True
 
+sessions = []
+
 class CUser():
     def __init__(self, sessionID):
         self.sessionID = sessionID
@@ -32,7 +34,6 @@ class CUser():
         with connection.cursor(buffered=True) as self.cursor:
             self.cursor.execute(self.query)
             for self.session in self.cursor.fetchall():
-                print(self.session[0])
                 self.st = int(datetime.datetime.strptime(str(self.session[0]), "%Y-%m-%d %H:%M:%S").strftime("%s"))
                 self.lt = time.time()
                 if((self.lt-self.st) > 25):
@@ -51,8 +52,19 @@ class CUser():
                     with connection.cursor(buffered=True) as self.cursor:
                         self.cursor.execute(self.query)
 
+                else:
+                    sessions.append(self.sessionID)
+
     def work(self):
         self.iterSessions()
+
+class CSystem():
+    def iterFolders(self):
+        for subdir, dirs, files in os.walk('/var/www/html/api/sessions/'):
+            for sess in dirs:
+                if sess not in sessions:
+                    os.remove(f'/var/www/html/api/sessions/{sess}/index.php')
+                    os.rmdir(f'/var/www/html/api/sessions/{sess}')
 
 if __name__ == '__main__':
     query = ("SELECT `sessionID` FROM `sessions`")
@@ -61,5 +73,7 @@ if __name__ == '__main__':
         for user in cursor.fetchall():
             cUser = CUser(user[0])
             cUser.work()
+
+    #CSystem().iterFolders()
 
     connection.close()

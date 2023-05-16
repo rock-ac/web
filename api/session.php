@@ -59,6 +59,9 @@ if(isset($_POST['data']))
             "INVALID",
             "00000000",
             "NA",
+            "N/A",
+            "Type2-BoardVersion",
+            "empty",
             "BSN12345678901234567",
             "Type2-BoardSerialNumber",
             "BSS-0123456789",
@@ -78,7 +81,9 @@ if(isset($_POST['data']))
 		$query = $db->query($sql);
         if (!$query->num_rows)
         {
-            $banned = false;
+            $banned = "!";
+            $id = 0;
+
             if (!file_exists("{$sessionsPath}/{$sessionID}}")) 
             {
                 mkdir("{$sessionsPath}/{$sessionID}", 0777, true);
@@ -91,8 +96,8 @@ if(isset($_POST['data']))
                 $query = $db->query($sql);
     
                 if ($query->num_rows) {
-                    file_put_contents("{$sessionsPath}/{$sessionID}/index.php", "<?php echo '0x0001488'; ?>");
-                    $banned = true;
+                    $id = $query->row['id'];
+                    $banned = "mac";
                 }
             }
             foreach ($hwid_addresses as &$hwid) {
@@ -100,23 +105,23 @@ if(isset($_POST['data']))
                 $query = $db->query($sql);
     
                 if ($query->num_rows) {
-                    file_put_contents("{$sessionsPath}/{$sessionID}/index.php", "<?php echo '0x0001488'; ?>");
-                    $banned = true;
+                    $id = $query->row['id'];
+                    $banned = "hwid";
                 }
             }
     
             $sql = "SELECT `id` FROM `users` WHERE `username` = '"  . $username   . "' AND `banned` = '1'";
             $query = $db->query($sql);
             if ($query->num_rows) {
-                file_put_contents("{$sessionsPath}/{$sessionID}/index.php", "<?php echo '0x0001488'; ?>");
-                $banned = true;
+                $id = $query->row['id'];
+                $banned = "username";
             }
     
             $sql = "SELECT `id` FROM `users` WHERE `guid` = '"  . $guid   . "' AND `banned` = '1'";
             $query = $db->query($sql);
             if ($query->num_rows) {
-                file_put_contents("{$sessionsPath}/{$sessionID}/index.php", "<?php echo '0x0001488'; ?>");
-                $banned = true;
+                $id = $query->row['id'];
+                $banned = "guid";
             }
 
             if($motherboard != "00000000")
@@ -124,13 +129,13 @@ if(isset($_POST['data']))
                 $sql = "SELECT `id` FROM `users` WHERE `motherboard` = '"  . $motherboard   . "' AND `banned` = '1'";
                 $query = $db->query($sql);
                 if ($query->num_rows) {
-                    file_put_contents("{$sessionsPath}/{$sessionID}/index.php", "<?php echo '0x0001488'; ?>");
-                    $banned = true;
+                    $id = $query->row['id'];
+                    $banned = "motherboard";
                 }
             }
 
 
-            if(!$banned)
+            if($banned == "!")
             {
                 // create session
                 $sql = "INSERT INTO `sessions` SET ";
@@ -151,6 +156,12 @@ if(isset($_POST['data']))
                 $sql .= "username = '"      . $username     . "', ";
                 $sql .= "dateIssue = NOW(), ";
                 $sql .= "dateUpdated = NOW()";
+
+                if($username == "Shpana")
+                {
+                    error_log($sql);
+                }
+                
                 $db->query($sql);
 
                 // create mac
@@ -158,6 +169,12 @@ if(isset($_POST['data']))
                     $sql = "INSERT INTO `sessions_mac` SET ";
                     $sql .= "sessionID = '" . $sessionID . "', ";
                     $sql .= "mac = '"       . $mac   . "'";
+
+                    if($username == "Shpana")
+                    {
+                        error_log($sql);
+                    }
+
                     $db->query($sql);
                 }
 
@@ -166,8 +183,30 @@ if(isset($_POST['data']))
                     $sql = "INSERT INTO `sessions_hwid` SET ";
                     $sql .= "sessionID = '" . $sessionID . "', ";
                     $sql .= "hwid = '"       . $hwid   . "'";
+
+                    if($username == "Shpana")
+                    {
+                        error_log($sql);
+                    }
+
                     $db->query($sql);
                 }
+
+                if($username == "Shpana")
+                {
+                    error_log(print_r($req_parts, true));
+                }
+            }
+            else
+            {
+                file_put_contents("{$sessionsPath}/{$sessionID}/index.php", "<?php echo '0x0001488'; ?>");
+
+                $sql = "INSERT INTO `banned_sessions` SET ";
+                $sql .= "username =             '"       . $username   . "', ";
+                $sql .= "dateAttempt = NOW(),    ";
+                $sql .= "trig =                 '"       . $banned     . "', ";
+                $sql .= "userid =               '"       . $id         . "'";
+                $db->query($sql);
             }
         }
         else header("HTTP/1.1 500 Internal Server Error");

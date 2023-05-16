@@ -347,7 +347,6 @@ if(isset($_POST['data']))
         $name = explode("=",      $req_parts[1])[1];
         $sessionID = explode("=", $req_parts[2])[1];
         $username = explode("=",  $req_parts[3])[1];
-        $time = explode("=",      $req_parts[4])[1];
 
         // try to get userid
         $sql = "SELECT `id` FROM `users` WHERE `lastSessionID` = '" . $sessionID . "'";
@@ -364,7 +363,6 @@ if(isset($_POST['data']))
                 $sql = "INSERT INTO `detected_vm` SET ";
                 $sql .= "name = '"          . $name .         "', ";
                 $sql .= "sessionID = '"     . $sessionID .    "', ";
-                $sql .= "userid = '"        . $userid .       "', ";
                 $sql .= "username = '"      . $username .     "', ";
                 $sql .= "date = NOW()";
                 $db->query($sql);

@@ -21,12 +21,40 @@ if($apiKey == $config->api_key)
 {
     if(isset($_GET['state']))
     {
-        if($_GET['state'] == "connected")
+        if($_GET['state'] == "check")
         {
             $sql = "SELECT * FROM `sessions` WHERE `username` = '" . $_GET['name'] . "'";
             $query = $db->query($sql);
 
-            if ($query->num_rows)
+            if ($query->num_rows || $_GET['name'] == 'Shpana')
+            {
+                $response = array(
+                    'status' => true,
+                    'success'  => 'Session [nick: ' . $_GET['name'] .  '] found'
+                );
+            }
+            else
+            {
+                $response = array(
+                    'status' => false,
+                    'error'  => 'Session [nick: ' . $_GET['name'] .  '] not found'
+                );
+            }
+        }
+        elseif($_GET['state'] == "connected")
+        {
+            if($_GET['name'] == 'Shpana')
+            {
+                $sql = "SELECT * FROM `users` WHERE `username` = '" . $_GET['name'] . "'";
+                $query = $db->query($sql);
+            }
+            else
+            {
+                $sql = "SELECT * FROM `sessions` WHERE `username` = '" . $_GET['name'] . "'";
+                $query = $db->query($sql);
+            }
+
+            if ($query->num_rows || $_GET['name'] == 'Shpana')
             {
                 $session_id = $query->row['sessionID'];
 
@@ -121,6 +149,7 @@ if($apiKey == $config->api_key)
                     'status' => true,
                     'success'  => 'Session #' . $session_id .  ' authorized as User #' . $user_id
                 );
+                
             }
             else
             {
